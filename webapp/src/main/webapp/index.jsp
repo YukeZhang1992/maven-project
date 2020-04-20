@@ -1,3 +1,1 @@
-Hello, yukiko!
-もう見えない夜空に　降り注ぐ輝き
-あの日々は　たとえようもなく　愛しくて
+Hello, yukiko! pipline automated
