@@ -31,12 +31,12 @@ pipeline {
 	  parallel{
 	    stage('deploy-to-stage'){
 		  steps{
-		    sh 'scp -i D:/yukiko/cmder/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_stage}:/var/lib/tomcat8/webapps'
+		     'scp -i D:/yukiko/cmder/tomcat-demo.pem  **/target/*.war  ec2-user@${params.tomcat_stage}:/var/lib/tomcat8/webapps'
 		  }
 		}
 	    stage('deploy-to-prod'){
 		  steps{
-		    sh 'scp -i D:/yukiko/cmder/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps'
+		     'scp -i D:/yukiko/cmder/tomcat-demo.pem  **/target/*.war  ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps'
 		  }
 		}	
 	  }
