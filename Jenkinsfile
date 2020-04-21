@@ -31,12 +31,12 @@ pipeline{
 	  parallel{
 	  stage('deploy-to-stage'){
 	    steps{
-		  sh 'scp -i /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${params.tomcat_stage}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps'
+		  sh "scp -i /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${params.tomcat_stage}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps"
 		}
 	}
 	  stage('deploy-to-prod'){
 	    steps{
-		  sh 'scp -i /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${params.tomcat_prod}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps'
+		  sh "scp -i /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${params.tomcat_prod}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps"
 		}
 	  }
 
