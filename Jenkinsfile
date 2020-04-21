@@ -19,7 +19,6 @@ pipeline{
 	    steps{
 	        sh 'mvn clean package'
 	    }
-	}
 	post{
 	  success {
 	    echo 'archiving...'
