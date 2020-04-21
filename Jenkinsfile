@@ -1,44 +1,41 @@
 pipeline {
   agent any
   
-  tools{
-    maven 'local maven'
-  }
-  
-  parameters{
-    string(name:'tomcat_stage', defaultValue:'3.80.155.110', description:'stage tomcat')
-    string(name:'tomcat_prod', defaultValue:'34.203.28.8', description:'prod tomcat')
-  }
-  
-  triggers{
-    pollSCM('* * * * *')
-  }
-  
   stages{
-    stage('Build'){
+    stage('package'){
 	  steps{
-	    bat 'mvn clean package'
+	    sh 'mvn clean package'
 	  }
 	  post{
-	    success{
-		echo 'archiving'
-		archiveArtifacts artifacts:'**/target/*.war'
+	    success {
+		  echo 'archiving...'
+		  archiveArtifacts artifacts:**/target/*.war
 		}
 	  }
 	}
 	
-	stage('deployment'){
-	  parallel{
-	    stage('deploy-to-stage'){
-		  steps{
-		    bat 'winscp -i D:/yukiko/cmder/tomcat-demo.pem  **/target/*.war  ec2-user@${params.tomcat_stage}:/var/lib/tomcat8/webapps'
-		  }
+	stage('deploy-to-stage'){
+	  steps{
+	    build job:'deploy-to-stage'
+	  }
+	}
+	
+	stage('deploy-to-prod'){
+	  steps{
+	    timeout(time:5, unit:'DAYS'){
+		  input message:'are you sure that you want to deploy to prod?'		
 		}
-	    stage('deploy-to-prod'){
-		  steps{
-		    bat 'winscp -i D:/yukiko/cmder/tomcat-demo.pem  **/target/*.war  ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps'
-		  }
-		}	
+	    build job:'deploy-to-prod'
+	  }
+	  
+	  post{
+	    success {
+		  echo 'deployed successfully'
+		}
+		
+		failure {
+		  echo 'deployment failed'
+		}
 	  }
 	}
   }
