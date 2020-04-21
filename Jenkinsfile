@@ -1,46 +1,44 @@
-pipeline {
+pipeline{
   agent any
   
   tools{
-    maven 'MAVEN_HOME'	
-	}
-	
+    maven 'MAVEN_HOME'
+  }
+  
+  parameters{
+    string(name:'tomcat_stage', defaultValue:'3.90.199.126', description:'stage tomcat')
+    string(name:'tomcat_prod', defaultValue:'50.17.93.249', description:'prod tomcat')
+  }
+  
+  triggers{
+    pollSCM('* * * * *')
+  }
+  
   stages{
-    stage('package'){
-	  steps{
-	    sh 'mvn clean package'
-	  }
-	  post{
-	    success {
-		  echo 'archiving...'
-		  archiveArtifacts artifacts:'**/target/*.war'
-		}
+    stage('build'){
+	  sh 'mvn clean package'
+	}
+	post{
+	  success {
+	    echo 'archiving...'
+	    archiveArtifacts artifacts:'**/target/*.war'
 	  }
 	}
-	
-	stage('deploy-to-stage'){
-	  steps{
-	    build job:'deploy-to-stage'
-	  }
+  
+    stage('deploy'){
+	  parallel{
+	  stage('deploy-to-stage'){
+	    steps{
+		  sh 'scp /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${paras:tomcat_stage}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps'
+		}
 	}
-	
-	stage('deploy-to-prod'){
-	  steps{
-	    timeout(time:5, unit:'DAYS'){
-		  input message:'are you sure that you want to deploy to prod?'		
-		}
-	    build job:'deploy-to-prod'
-	  }
-	  
-	  post{
-	    success {
-		  echo 'deployed successfully'
-		}
-		
-		failure {
-		  echo 'deployment failed'
+	  stage('deploy-to-prod'){
+	    steps{
+		  sh 'scp /home/ec2-user/jenkins.pem  **/target/*.war  ec2-user@${paras:tomcat_prod}:/home/ec2-user/downloads/apache-tomcat-8.5.54/webapps'
 		}
 	  }
+
 	}
+  }
   }
 }
